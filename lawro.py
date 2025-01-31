@@ -1,7 +1,8 @@
 import sys
+import csv
+
 from bs4 import BeautifulSoup as bs
 import requests
-import csv
 
 url = sys.argv[1]
 week = sys.argv[2]
@@ -16,8 +17,8 @@ def get_lawro_table(url):
 
 def scrape_result(row):
     elements = row.find_all('td')
-    teams = elements[0].text.lower().split(' v ')
-    lawro_predict = elements[2].text.split('-')
+    teams = elements[0].text.lower().replace('sheff', 'sheffield').split(' v ')
+    lawro_predict = elements[2].text.replace('united', 'utd').split('-')
     try:
         return [week, 'mark lawrenson', teams[0], teams[1], lawro_predict[0], lawro_predict[1]]
     except IndexError:
@@ -40,11 +41,8 @@ def mark_lawrenson():
         predict = scrape_result(row)
         if predict is not None:
             predictions.append(predict)
-
-    for i in predictions:
-        print_results(i)
-
-    with open(f'./predictions/lawro_{week}.csv', 'w') as f:
+            print_results(predict)
+    with open(f'../data/pundits/2020_21/lawro_{week}.csv', 'w') as f:
         csvwriter = csv.writer(f)
         csvwriter.writerows(predictions)
 
